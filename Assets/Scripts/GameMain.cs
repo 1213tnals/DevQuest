@@ -27,7 +27,7 @@ public class GameMain : MonoBehaviour
     [HideInInspector] public int playerHealth;
 
     [Header("VFX")]
-    [SerializeField] public GameObject effect;
+    [SerializeField] public GameObject effectPrefab;
 
     [Header("UI")]
 
@@ -52,6 +52,7 @@ public class GameMain : MonoBehaviour
 
     // ## VFX
     private LineRenderer lineRenderer;
+    private TrailRenderer trailRenderer;
     private Vector3 shootPoint;
     private Ray ray;
     private RaycastHit hit;
@@ -100,6 +101,8 @@ public class GameMain : MonoBehaviour
 
         lineRenderer = GetComponent<LineRenderer>();
         lineRenderer.positionCount = 2;
+
+        trailRenderer = GetComponent<TrailRenderer>();
     }
 
     private void Update()
@@ -131,10 +134,6 @@ public class GameMain : MonoBehaviour
     {
         isShoot = Input.GetMouseButtonDown(0);
         isStop = Input.GetKey(KeyCode.Escape);
-
-        //userPosition = mainCamera.transform.position;
-        //userOrientation = mainCamera.transform.rotation;
-        //Debug.Log(userPosition);
     }
 
     private void PlayerManage()
@@ -170,12 +169,11 @@ public class GameMain : MonoBehaviour
     private void EnemyManage()
     {
         enemy_count = enemyContainer.transform.childCount;
+    }
 
-        //for (int i = 0; i < enemy_count; i++)
-        //{
-        //    Debug.Log(enemy[0].transform.position);
-        //}
-
+    private void EffectManage()
+    {
+        // Ray¸¦ ½ú´Ù¸é
         if (isShoot)
         {
             ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -185,55 +183,48 @@ public class GameMain : MonoBehaviour
                 isOnhit = true;
                 Debug.DrawRay(ray.origin, ray.direction * layDistance, Color.red);
 
-                if (hit.collider.gameObject.name == "Enemy (0)") { enemy[0].currnet_health -= gunPower; }
-                else if (hit.collider.gameObject.name == "Enemy (1)") { enemy[1].currnet_health -= gunPower; }
-                else if (hit.collider.gameObject.name == "Enemy (2)") { enemy[2].currnet_health -= gunPower; }
-                else if (hit.collider.gameObject.name == "Enemy (3)") { enemy[3].currnet_health -= gunPower; }
-                else if (hit.collider.gameObject.name == "Enemy (4)") { enemy[4].currnet_health -= gunPower; }
-                else if (hit.collider.gameObject.name == "Enemy (5)") { enemy[5].currnet_health -= gunPower; }
-                else if (hit.collider.gameObject.name == "Enemy (6)") { enemy[6].currnet_health -= gunPower; }
-                else if (hit.collider.gameObject.name == "Enemy (7)") { enemy[7].currnet_health -= gunPower; }
-                else if (hit.collider.gameObject.name == "Enemy (8)") { enemy[8].currnet_health -= gunPower; }
-                else if (hit.collider.gameObject.name == "Enemy (9)") { enemy[9].currnet_health -= gunPower; }
+                for (int i = 0; i < 10; i++)
+                {
+                    string enemyName = $"Enemy ({i})";
+                    if (hit.collider.gameObject.name == enemyName) { enemy[i].currnet_health -= gunPower; }
+                }
             }
         }
 
-        //GameObject[] enemies = GameObject.FindGameObjectsWithTag("Player");
-        //int enemyCount = enemies.Length;
-        //Debug.Log(enemyCount);
-    }
-
-    private void EffectManage()
-    {
-        if(isOnhit)
+        // Ray°¡ Ãæµ¹Ã¼¿¡ ´ê¾Ò´Ù¸é
+        if (isOnhit)
         {
             effetTimer = 0f;
-
-            //Debug.Log(hit.point);
             shootPoint = gun.transform.position;
 
-            Instantiate(effect, hit.point, Quaternion.identity);
+            GameObject effect = Instantiate(effectPrefab, hit.point, Quaternion.identity);
+            Destroy(effect, 1f);
             isEffectOn = true;
         }
 
+        // ÀÌÆåÆ® ON
         if(isEffectOn)
         {
             effetTimer += Time.deltaTime;
-            //Debug.Log(effetTimer);
         }
 
         if (effetTimer <= 1f)
         {
             lineRenderer.SetPosition(0, shootPoint);
             lineRenderer.SetPosition(1, hit.point);
+            //trailRenderer.AddPosition(shootPoint);
+            //trailRenderer.AddPosition(hit.point);
         }
+
         else
         {
             isEffectOn = false;
 
             // ¼± ¾ø¾Ö´Â ¹ýÀ» ¸ô¶ó¼­ ¼û°Ü¹ö·È½À´Ï´Ù..
-            lineRenderer.SetPosition(0, new(-100f,-100f,-100f));
+            lineRenderer.SetPosition(0, new(-100f, -100f, -100f));
             lineRenderer.SetPosition(1, new(-101f, -101f, -101f));
+            //trailRenderer.AddPosition(new(-100f, -100f, -100f));
+            //trailRenderer.AddPosition(new(-101f, -101f, -101f));
         }
     }
 

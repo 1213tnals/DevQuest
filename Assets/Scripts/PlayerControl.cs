@@ -37,7 +37,7 @@ public class PlayerControl : MonoBehaviour
     //public bool skillUsed;
 
     [Header("VFX")]
-    [SerializeField] public GameObject skillEffect;
+    [SerializeField] public GameObject skillEffectPrefab;
 
     private void Start()
     {
@@ -119,23 +119,6 @@ public class PlayerControl : MonoBehaviour
         {
             StartCoroutine(SkillManage());
         }
-        //if(skillUsed == false && skillOn == false)
-        //{
-        //    Flash();
-        //    skillUsed = true;
-        //}
-
-        //if (skillPressed == true)
-        //{
-        //    StartCoroutine(SkillManage());
-        //}
-        //if (skillOn == true && skillPressed == true)
-        //{
-        //    skillOn = false;
-        //    Flash();
-        //}    
-
-        //Debug.Log(skillOn);
     }
 
     private void CheckLanded() {
@@ -165,7 +148,8 @@ public class PlayerControl : MonoBehaviour
     private void Flash()
     {
         this.transform.position = this.transform.position + GameMain.main.playerDirection * flashDistance;
-        Instantiate(skillEffect, this.transform.position, Quaternion.identity);
+        GameObject skillEffect = Instantiate(skillEffectPrefab, this.transform.position, Quaternion.identity);
+        Destroy(skillEffect);
     }
 
     IEnumerator SkillManage()

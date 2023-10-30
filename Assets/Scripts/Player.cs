@@ -34,7 +34,6 @@ public class Player : MonoBehaviour
         {
             item = other.GetComponent<Item>();
             playermode = item.ItemData.Function;
-            //Debug.Log(item.ItemData.Function);
         }
     }
 }
